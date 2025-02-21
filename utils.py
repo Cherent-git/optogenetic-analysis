@@ -1,4 +1,20 @@
 import numpy as np
+import os
+
+def rename_files(folder_path, old_char, new_char):
+    ''' 
+    Replace 'old_char' with 'new_char' in all files in the folder
+    '''
+    # Iterate over all files in the folder
+    for filename in os.listdir(folder_path):
+        # Construct the old and new filenames
+        old_filename = os.path.join(folder_path, filename)
+        new_filename = os.path.join(folder_path, filename.replace(old_char, new_char))
+        
+        # Rename the file
+        os.rename(old_filename, new_filename)
+        print(f"Renamed '{old_filename}' to '{new_filename}'")
+
 
 def unwrap_with_nans(phases, unit='deg'):
     ''' Adaptation of the numpy.unwrap function to handling multiple consecutive NaNs, from ChatGPT.
