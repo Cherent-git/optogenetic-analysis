@@ -307,7 +307,9 @@ for path in paths:
     if bs_bool:
         param_sym_bs = np.zeros(np.shape(param_sym))
         param_paw_bs = np.zeros(np.shape(param_paw))
-        for p in range(np.shape(param_sym)[0]-1):
+        for p in range(np.shape(param_sym)[0]):
+            if param_sym_name[p] == 'stance_speed':
+                continue
             for a in range(np.shape(param_sym)[1]):
                 # Compute baseline
                 if stim_start == split_start:
@@ -362,7 +364,7 @@ for path in paths:
             
             plt.savefig(paths_save[path_index] + 'compare_baselines', dpi=128)
             
-
+    # PLOT INDIVIDUAL ANIMALS FOR EACH SESSION
     for p in range(np.shape(param_sym)[0]):
         if param_sym_name[p] == 'stance_speed':
             continue
@@ -392,7 +394,7 @@ for path in paths:
     plt.close('all')
 
 
-    # PLOT STANCE SPEED for ALL ANIMALS
+     # PLOT STANCE SPEED for ALL ANIMALS
     if 'stance_speed' in param_sym_name:
         for a in range(np.shape(stance_speed)[1]):
             data = stance_speed[:, a, :]
@@ -401,8 +403,6 @@ for path in paths:
             if print_plots:
                 pf.save_plot(fig_stance_speed, paths_save[path_index], animal_list[a], plot_name='_stancespeed', dpi=96)
     plt.close('all')
-
-
 
 
     path_index = path_index+1
