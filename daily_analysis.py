@@ -236,11 +236,12 @@ for path in paths:
                     param_mat_saved[animal][param][count_trial+1] = param_mat
                     to_save_param_mat = True
                 if param == 'stance_speed':
-                    for p in range(4):
+                    for p in range(4):          
                         stance_speed[p, count_animal, count_trial] = np.nanmean(param_mat[p])
-                elif param == 'phase_st':
+                elif param == 'phase_st':       # reference HL
                     for p in range(4):
-                        param_phase[p, count_animal, count_trial] = st.circmean(param_mat[0][p], nan_policy='omit')
+                        param_phase[p, count_animal, count_trial] = st.circmean(param_mat[3][p], nan_policy='omit')
+                    param_sym[count_p, count_animal, count_trial] = param_phase[0, count_animal, count_trial] - param_phase[2, count_animal, count_trial]
                 else:
                     param_sym[count_p, count_animal, count_trial] = np.nanmean(param_mat[0])-np.nanmean(param_mat[2])
                 
