@@ -2078,6 +2078,192 @@ class otrack_class:
             plt.savefig(path_save + plot_name)
             plt.savefig(path_save + plot_name + '.svg')
         return
+
+    def plot_laser_presentation_phase_hist_allanimals(self, onset_data, offset_data, fontsize_plot, hist_norm,
+                                        color_onset, color_offset, path_save, plot_name, print_plots):
+        """Plots the histograms (step-like) of the onset and offset phases of light stimulations with the stride
+        in the phase in the background. Each line represents one animal.
+        Inputs:
+            onset_data: (list) onset phase values
+            offset_data: (list) offset phase values
+            fontsize_plot: (int) size of letters in plot
+            hist_norm: boolean to normalize the histograms to its maximum
+            color_onset: color onset phases (str)
+            color_offset: color offset phases (str)
+            path_save: (str) with path to save plots
+            plot_name: (str) plot name that can include animal name and session
+            print_plots: boolean"""
+
+        if hist_norm:
+            amp_plot = 1
+        else:
+            amp_plot = 400
+        time = np.arange(-0.5, 1.5, np.round(1 / self.sr, 3))
+        FR = amp_plot * np.sin(2 * np.pi * time + (np.pi / 2))+amp_plot
+        fig, ax = plt.subplots(figsize=(7, 5), tight_layout=True)
+        ax.plot(time, FR, color='lightgray', zorder=0)
+        for count_a in range(len(onset_data)):
+            hist_onset = np.histogram(onset_data[count_a], range=(
+                np.min(onset_data[count_a]), np.max(onset_data[count_a])),
+                                      bins=20)
+            hist_offset = np.histogram(offset_data[count_a], range=(
+                np.min(offset_data[count_a]), np.max(offset_data[count_a])),
+                                       bins=20)
+            if hist_norm:
+                weights_onset = np.ones_like(onset_data[count_a]) / np.max(hist_onset[0])
+                weights_offset = np.ones_like(offset_data[count_a]) / np.max(hist_offset[0])
+                ax.hist(onset_data[count_a], histtype='step', color=color_onset, alpha=1-(count_a)*0.2, linewidth=2, weights=weights_onset)
+                ax.hist(offset_data[count_a], histtype='step', color=color_offset, alpha=1-(count_a)*0.2, linewidth=2, weights=weights_offset)
+            else:
+                ax.hist(onset_data[count_a], histtype='step', color=color_onset,
+                        alpha=1 - (count_a) * 0.1, linewidth=2)
+                ax.hist(offset_data[count_a], histtype='step', color=color_offset,
+                        alpha=1 - (count_a) * 0.1, linewidth=2)
+        ax.set_xticks([-0.5, 0, 0.5, 1, 1.5])
+        ax.set_xticklabels(['-50', '0', '50', '100', '150'])
+        ax.set_xlabel('Stride phase (%)', fontsize=fontsize_plot)
+        ax.set_ylabel('Laser presentation\ncounts', fontsize=fontsize_plot)
+        ax.spines['right'].set_visible(False)
+        ax.spines['top'].set_visible(False)
+        ax.set_xlim(-0.5, 1.5)
+        ax.tick_params(axis='both', which='major', labelsize=fontsize_plot - 2)
+        if print_plots:
+            plt.savefig(path_save + plot_name)
+            plt.savefig(path_save + plot_name + '.svg')
+        return
+
+    def plot_laser_presentation_phase_hist_heatmap(self, onset_data, offset_data, fontsize_plot,
+                                                      color_cond, path_save, plot_name, print_plots):
+        """Plots the histograms (visualization like heatmap) of the onset and offset phases of light stimulations with the stride
+        in the phase in the background
+        Inputs:
+            onset_data: (list) onset phase values
+            offset_data: (list) offset phase values
+            fontsize_plot: (int) size of letters in plot
+            color_cond: color phases (str) - it capitalizes and includes an s
+            For example "green"->"Greens"
+            path_save: (str) with path to save plots
+            plot_name: (str) plot name that can include animal name and session
+            print_plots: boolean"""
+        # histogram of onset phases
+        light_onset_phase_viz_hist = np.histogram(onset_data,range = (
+            np.min(onset_data), np.max(onset_data)))
+        light_onset_phase_st_viz_hist_norm = light_onset_phase_viz_hist[0] / np.nanmax(
+            light_onset_phase_viz_hist[0])
+        # Plot onset and histograms phase distributions
+        cmap = plt.get_cmap(color_cond.capitalize() + 's')
+        color_bars = [cmap(i) for i in np.linspace(0, 1, 11)]
+        time = np.arange(-0.5, 1.5, np.round(1 / self.sr, 3))
+        FR = np.sin(2 * np.pi * time + (np.pi / 2)) + 1
+        fig, ax = plt.subplots(figsize=(7, 5), tight_layout=True)
+        plt.plot(time, FR, color='black')
+        for b in range(len(light_onset_phase_viz_hist[1]) - 1):
+            plt.bar(light_onset_phase_viz_hist[1][b], height=2, width=0.15,
+                    color=color_bars[np.int64(np.ceil(light_onset_phase_st_viz_hist_norm[b] * 10))])
+        plt.colorbar(ScalarMappable(cmap=cmap, norm=plt.Normalize(0, np.max(light_onset_phase_viz_hist[0]))),
+                     ticks=np.linspace(0, np.max(light_onset_phase_viz_hist[0]), 11), label='counts')
+        ax.set_xticks([-0.5, 0, 0.5, 1, 1.5])
+        ax.set_xticklabels(['-50', '0', '50', '100', '150'])
+        ax.set_xlabel('Phase (%)', fontsize=fontsize_plot)
+        ax.get_yaxis().set_visible(False)
+        ax.spines['right'].set_visible(False)
+        ax.spines['left'].set_visible(False)
+        ax.spines['top'].set_visible(False)
+        if print_plots:
+            plt.savefig(path_save + plot_name + '_onset')
+            plt.savefig(path_save + plot_name + '_onset.svg')
+        # histogram of offset phases
+        light_offset_phase_viz_hist = np.histogram(offset_data, range = (
+            np.min(offset_data), np.max(offset_data)))
+        light_offset_phase_st_viz_hist_norm = light_offset_phase_viz_hist[0] / np.nanmax(
+            light_offset_phase_viz_hist[0])
+        # Plot offset and histograms phase distributions
+        fig, ax = plt.subplots(figsize=(7, 5), tight_layout=True)
+        plt.plot(time, FR, color='black')
+        for b in range(len(light_offset_phase_viz_hist[1]) - 1):
+            plt.bar(light_offset_phase_viz_hist[1][b], height=2, width=0.1,
+                    color=color_bars[np.int64(np.ceil(light_offset_phase_st_viz_hist_norm[b] * 10))])
+        plt.colorbar(ScalarMappable(cmap=cmap, norm=plt.Normalize(0, np.max(light_offset_phase_viz_hist[0]))),
+                     ticks=np.linspace(0, np.max(light_offset_phase_viz_hist[0]), 11), label='counts')
+        ax.set_xticks([-0.5, 0, 0.5, 1, 1.5])
+        ax.set_xticklabels(['-50', '0', '50', '100', '150'])
+        ax.set_xlabel('Phase (%)', fontsize=fontsize_plot)
+        ax.get_yaxis().set_visible(False)
+        ax.spines['right'].set_visible(False)
+        ax.spines['left'].set_visible(False)
+        ax.spines['top'].set_visible(False)
+        if print_plots:
+            plt.savefig(path_save + plot_name + '_offset')
+            plt.savefig(path_save + plot_name + '_offset.svg')
+        return
+
+    @staticmethod
+    def laser_presentation_time_hist(trials_plot, trials, laser_on, st_strides_trials, sw_strides_trials, stride_event,
+                                          window, paw, plot_boolean, color_onset, color_offset, fontsize_plot, path_save, plot_name):
+        """Plots the histograms (step-like) of the onset and offset times in relation to the desired stride event (stance or swing onset)
+        It looks for the stimulation times within a window defined by the user in the window parameter.
+        E.g. if window=0.05, it looks for stimulation time 50 ms before and after stride event
+        Inputs:
+            trials_plot: (list) list of trials to compute this information
+            trials: (list) list of all trials in session (for sanity check of trial matching to indexes)
+            laser_on: (dataframe) of stimulation on and off times
+            st_strides_trials: array with the stance onset and offset information
+            sw_strides_trials: array with the swing onset information
+            stride_event: (string) stride event to align to (stance or swing onset)
+            window: (float) window of time to look within the stride event
+            paw: (str) choose from FR, HR, FL, HL paw
+            plot_boolean: (bool) to choose to plot single animal histogram
+            color_onset: color onset times (str)
+            color_offset: color offset times (str)
+            fontsize_plot: (int) size of letters in plot
+            path_save: (str) with path to save plots
+            plot_name: (str) plot name that can include animal name and session"""
+        if paw == 'FR':
+            paw_idx = 0
+        if paw == 'HR':
+            paw_idx = 1
+        if paw == 'FL':
+            paw_idx = 2
+        if paw == 'HL':
+            paw_idx = 3
+        time_from_event_on = []
+        time_from_event_off = []
+        for trial in trials_plot:
+            if len(np.where(trials == trial)[0]) > 1:
+                print("This session has repeated trials! Go to the list and remove bad trial.")
+            trial_id = np.where(trials == trial)[0][0]
+            laser_time_on_trial = np.array(laser_on.loc[laser_on['trial'] == trial, 'time_on'])
+            laser_time_off_trial = np.array(laser_on.loc[laser_on['trial'] == trial, 'time_off'])
+            if stride_event == 'stance':
+                stride_event_onset_trial = st_strides_trials[trial_id][paw_idx][:, 0, 0] / 1000
+            if stride_event == 'swing':
+                stride_event_onset_trial = sw_strides_trials[trial_id][paw_idx][:, 0, 0] / 1000
+            time_from_event_trial_on = []
+            time_from_event_trial_off = []
+            for s in stride_event_onset_trial:
+                idx_within_window_on = \
+                np.where((laser_time_on_trial > s - window) & (laser_time_on_trial < s + window))[0]
+                time_from_event_trial_on.extend(laser_time_on_trial[idx_within_window_on] - s)
+                idx_within_window_off = \
+                np.where((laser_time_off_trial > s - window) & (laser_time_off_trial < s + window))[0]
+                time_from_event_trial_off.extend(laser_time_off_trial[idx_within_window_off] - s)
+            time_from_event_on.extend(time_from_event_trial_on)
+            time_from_event_off.extend(time_from_event_trial_off)
+        if plot_boolean:
+            fig, ax = plt.subplots(figsize=(7, 5), tight_layout=True)
+            ax.axvline(x=0, color='darkgray', linewidth=2)
+            ax.hist(time_from_event_on, histtype='step', color=color_onset, linewidth=2)
+            ax.hist(time_from_event_off, histtype='step', color=color_offset, linewidth=2)
+            ax.set_xlabel('Time from stride event (s)', fontsize=fontsize_plot)
+            ax.set_ylabel('Laser presentation\ncounts', fontsize=fontsize_plot)
+            ax.spines['right'].set_visible(False)
+            ax.spines['top'].set_visible(False)
+            ax.set_xlim(-window, window)
+            ax.tick_params(axis='both', which='major', labelsize=fontsize_plot - 2)
+            plt.savefig(path_save + plot_name + '_time_hist')
+            plt.savefig(path_save + plot_name + '_time_hist.svg')
+        return time_from_event_on, time_from_event_off
+
     def plot_laser_presentation_phase_benchmark(self, light_onset_phase, light_offset_phase, event, fontsize_plot,
             stim_nr, stride_nr, cmap_name, path_save, plot_name):
         """Plot on a schematic stride in phase the distribution of onsets and offsets for laser presentations.
