@@ -561,7 +561,33 @@ class loco_class:
         else:
             st_strides_mat_new = st_strides_mat
             sw_pts_mat_new = sw_pts_mat
-        return st_strides_mat_new, sw_pts_mat_new
+        #check if there are enough strides detected
+        st_strides_mat_clean = []
+        sw_pts_mat_clean = []
+        for p in range(4):
+            if np.shape(st_strides_mat_new[p])[0] < 20:
+                st_strides_mat_nan = np.zeros((1, 2, 5))
+                st_strides_mat_nan[:] = np.nan
+                st_strides_mat_clean.append(st_strides_mat_nan)
+            else:
+                st_strides_mat_clean.append(st_strides_mat_new[p])
+            if np.shape(sw_pts_mat_new[p])[0] < 20:
+                sw_pts_mat_nan = np.zeros((1, 1, 5))
+                sw_pts_mat_nan[:] = np.nan
+                sw_pts_mat_clean.append(sw_pts_mat_nan)
+            else:
+                sw_pts_mat_clean.append(sw_pts_mat_new[p])
+        return st_strides_mat_clean, sw_pts_mat_clean
+
+    def final_tracks_perctrial(self, final_tracks, bodycenter, perc_division):
+        max_samples = np.shape(final_tracks)[2]
+        sample_division = np.int64(max_samples * (perc_division / 100))
+        final_tracks_perctrial = []
+        bodycenter_perctrial = []
+        for i in range(np.int64(100 / perc_division)):
+            final_tracks_perctrial.append(final_tracks[:, :, sample_division * i:sample_division * (i + 1)])
+            bodycenter_perctrial.append(bodycenter[:, sample_division * i:sample_division * (i + 1)])
+        return final_tracks_perctrial, bodycenter_perctrial
 
     @staticmethod
     def final_tracks_phase(final_tracks_trials, trials, st_strides_trials, sw_strides_trials, phase_type):
