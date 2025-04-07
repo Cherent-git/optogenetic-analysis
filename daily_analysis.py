@@ -106,18 +106,17 @@ animal_colors_dict = {'MC16846': "#BBBBBB",'MC16848':"#BBBBBB",'MC16850': "#BBBB
 '''
 # All animals
 included_animal_list = []
-#included_animal_list = [ 'MC17319','MC17665','MC17666','MC17668','MC17669','MC17670']
 
-included_animal_list = ['VIV44771', 'VIV44766', 'VIV45372', 'VIV45373']
-#'MC11231','MC11234','MC11235','MC24410','MC24413'] # ChR2 LE
-            #['MC1262','MC1263','MC1328','MC1329','MC1330']     # ChR2 HE                #'VIV42906', 'VIV42974', 'VIV42908','VIV42985','VIV42987']  
 # JAWS histology-confirmed (18 animals)
 included_animal_list =  ['MC16848', 'MC16851', 'MC17319', 'MC17665', 'MC17666', 'MC17669', 'MC17670', 'MC19082', 'MC19124', 
                          'MC19214', 'VIV41329', 'VIV41330', 'VIV42375', 'VIV42428', 'VIV42429', 'VIV42430', 'VIV42376', 'MC19107']         # 'VIV42376' only tied, 'MC19107' only tied and Rfast
 
 # ChR2 LE histology-confirmed (7 animals)
 included_animal_list =  ['VIV42906', 'VIV42908', 'VIV42974', 'VIV42985','VIV42987','VIV44766', 'VIV45372']  
-   
+
+#                        #]           # 'VIV42907',, 'VIV44765' only 100st    # 'VIV42906', 'VIV42908', 'VIV42974', 'VIV42985','VIV42987', only100st and 100sw
+
+ #['MC1262','MC1263','MC1328','MC1329','MC1330']     # ChR2 HE 
 
 session = 1
 Ntrials = 28
