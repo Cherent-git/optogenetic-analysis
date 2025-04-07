@@ -104,26 +104,20 @@ animal_colors_dict = {'MC16846': "#BBBBBB",'MC16848':"#BBBBBB",'MC16850': "#BBBB
                       'VIV42985':animal_colors[6], 'VIV42992': animal_colors[7],'VIV42987': animal_colors[8]}
 
 '''
+# All animals
+included_animal_list = []
 #included_animal_list = [ 'MC17319','MC17665','MC17666','MC17668','MC17669','MC17670']
 
 included_animal_list = ['VIV44771', 'VIV44766', 'VIV45372', 'VIV45373']
 #'MC11231','MC11234','MC11235','MC24410','MC24413'] # ChR2 LE
             #['MC1262','MC1263','MC1328','MC1329','MC1330']     # ChR2 HE                #'VIV42906', 'VIV42974', 'VIV42908','VIV42985','VIV42987']  
-'''
-['MC16846','MC16848','MC16850','MC16851', 'MC17319',
-   'MC17665','MC17670','MC17666', 'MC17668','MC17669', 
-   'MC19022','MC19082','MC19123', 'MC19124', 'MC19130',
-   'MC19132','MC19214', 'MC18737', 'MC19107', 'VIV41330', 
-   'VIV41329']          # 21 animals
-  
-included_animal_list =  ['MC16851', 'MC17319','MC17665','MC17670','MC17666', 'MC17668', 
-    'MC19082','MC19124', 'MC19130','MC19214']         # 11 animals
-      '''
-    #'MC19022','MC19082','MC19123','MC19130','MC19132','MC19124','MC19214']             #  
-#included_animal_list = ['MC16851','MC17319','MC17665','MC17666','MC17669','MC17670']#, 'MC19022','MC19082','MC19123','MC19124','MC19214']
-#['C:\\Users\\alice\\Documents\\25042023 split left fast swing large stim\\']
-# ['C:\\Users\\alice\\Carey Lab Dropbox\\Tracking Movies\\AnaG+Alice\\090523 split right fast stance stim only split\\']
-#['C:\\Users\\Ana\\Documents\\PhD\\Projects\\Online Stimulation Treadmill\\Experiments\\18042023 split right fast trial stim (copied MC16848 T3 to mimic T2)\\']
+# JAWS histology-confirmed (18 animals)
+included_animal_list =  ['MC16848', 'MC16851', 'MC17319', 'MC17665', 'MC17666', 'MC17669', 'MC17670', 'MC19082', 'MC19124', 
+                         'MC19214', 'VIV41329', 'VIV41330', 'VIV42375', 'VIV42428', 'VIV42429', 'VIV42430', 'VIV42376', 'MC19107']         # 'VIV42376' only tied, 'MC19107' only tied and Rfast
+
+# ChR2 LE histology-confirmed (7 animals)
+included_animal_list =  ['VIV42906', 'VIV42908', 'VIV42974', 'VIV42985','VIV42987','VIV44766', 'VIV45372']  
+   
 
 session = 1
 Ntrials = 28
