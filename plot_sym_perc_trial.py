@@ -2,18 +2,19 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 
-#TODO save plots with meaningful names
-
 #path inputs
-path_loco = 'C:\\Users\\Ana\\Desktop\\Opto JAWS RT\\tied stance stim\\'
-perc_division = 10
+path_loco = 'C:\\Users\\Ana\\Desktop\\Opto JAWS RT\\tied swing stim\\'
+perc_division = 10 #percentage of the trial to plot in each bin
 paws = ['FR', 'HR', 'FL', 'HL']
 paw_colors = ['#e52c27', '#ad4397', '#3854a4', '#6fccdf']
-animals = ['MC16848', 'MC16851', 'MC17319', 'MC17665', 'MC17666', 'MC17669', 'MC17670', 'MC19082', 'MC19124', 'MC19214',
-        'VIV41329', 'VIV41330', 'VIV42375', 'VIV42376', 'VIV42428', 'VIV42429', 'VIV42430', 'MC19107']
+# JAWS histology-confirmed (18 animals)
+animals = ['MC16848', 'MC16851', 'MC17319', 'MC17665', 'MC17666', 'MC17669', 'MC17670', 'MC19082', 'MC19124',
+                         'MC19214', 'VIV41329', 'VIV41330', 'VIV42375', 'VIV42428', 'VIV42429', 'VIV42430', 'VIV42376', 'MC19107']
+# Animals with tied session of 24 trials instead of 28 - to adjust bins
+tied_session_short = ['MC16846', 'MC16848', 'MC16850', 'MC16851', 'MC17319', 'MC17665', 'MC17666', 'MC17668', 'MC17669', 'MC17670']
 stim_trials = np.arange(9, 18)
 Ntrials = 28
-color_cond = 'orange'
+color_cond = 'green'
 
 #import classes
 os.chdir('C:\\Users\\Ana\\Documents\\PhD\\Dev\\optogenetic-analysis\\')
@@ -49,10 +50,13 @@ for count_animal, animal in enumerate(animal_list_plot):
     trial_filelist = np.zeros(len(filelist))
     for count_f, f in enumerate(filelist):
         trial_filelist[count_f] = np.int64(f.split('_')[7][:f.split('_')[7].find('D')])
-    trials_idx = np.arange(0, Ntrials+1)
-    #TODO NEED TO ORDER SOMEHOW FOR SESSIONS WITH TRIAL # DIFFERENT THAN 28
-    #for the animals that did the short sessions only add to the predefined indexes, so the trials that match*duplicates from bins
-    #if smaller join to the number of bins it has
+    perc_times = np.int64(100 / perc_division)
+    bin_range = np.arange(0, Ntrials*np.int64(100/perc_division))
+    bin_range_split = np.split(bin_range, len(bin_range)/perc_times)
+    bin_range_split_trials_in_ses = []
+    for t in np.int64(trial_filelist):
+        bin_range_split_trials_in_ses.append(bin_range_split[t-1])
+    bin_range_trials_in_ses = np.hstack(bin_range_split_trials_in_ses)
     for count_p, param in enumerate(param_sym_name):
         param_sym_session = []
         for count_trial, f in enumerate(filelist):
@@ -70,7 +74,7 @@ for count_animal, animal in enumerate(animal_list_plot):
                     param_sym_single_trial.append(np.nanmean(param_mat[0])-np.nanmean(param_mat[2]))
             param_sym_session.extend(param_sym_single_trial)
         if len(param_sym_session) < np.shape(param_sym)[2]:
-            param_sym[count_p, count_animal, :len(param_sym_session)] = param_sym_session
+            param_sym[count_p, count_animal, bin_range_trials_in_ses] = param_sym_session
         elif len(param_sym_session) == np.shape(param_sym)[2]:
             param_sym[count_p, count_animal, :] = param_sym_session
         else:
@@ -103,6 +107,8 @@ for p in range(np.shape(param_sym)[0]):
     plt.yticks(fontsize=20)
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
+    plt.savefig(os.path.join(path_save, 'mean_animals_symmetry_' + param_sym_name[p] + '_perc_trial.png'), dpi=128)
+    plt.savefig(os.path.join(path_save, 'mean_animals_symmetry_' + param_sym_name[p] + '_perc_trial.svg'), dpi=128)
 
 #quantification of change within trial - mean data
 cmap = plt.get_cmap('Reds', len(stim_trials))
@@ -120,21 +126,25 @@ for p in range(np.shape(param_sym)[0]):
     plt.yticks(fontsize=20)
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
+    plt.savefig(os.path.join(path_save, 'mean_animals_symmetry_' + param_sym_name[p] + '_perc_trial_quantification.png'), dpi=128)
+    plt.savefig(os.path.join(path_save, 'mean_animals_symmetry_' + param_sym_name[p] + '_perc_trial_quantification.svg'), dpi=128)
 
-#quantification of change within trial - single animals
-for p in range(np.shape(param_sym)[0]):
-    for a in range(len(animal_list_plot)):
-        fig, ax = plt.subplots(figsize=(10, 10), tight_layout=True)
-        for count_t, t in enumerate(stim_trials):
-            plt.plot(np.arange(bin_size, bin_size*perc_times+1, bin_size),
-                     param_sym_bs[p, a, (t-1)*perc_times:(t-1)*perc_times+perc_times], color=cmap(count_t),
-            label='Trial '+str(t))
-        ax.set_xlabel('Time (s)', fontsize=20)
-        ax.set_ylabel(param_sym_label[p], fontsize=20)
-        ax.set_title('Change over trial - ' + animal_list_plot[a])
-        ax.legend(frameon=False)
-        plt.xticks(fontsize=20)
-        plt.yticks(fontsize=20)
-        ax.spines['right'].set_visible(False)
-        ax.spines['top'].set_visible(False)
-    plt.close('all')
+# #quantification of change within trial - single animals
+# for p in range(np.shape(param_sym)[0]):
+#     for a in range(len(animal_list_plot)):
+#         fig, ax = plt.subplots(figsize=(10, 10), tight_layout=True)
+#         for count_t, t in enumerate(stim_trials):
+#             plt.plot(np.arange(bin_size, bin_size*perc_times+1, bin_size),
+#                      param_sym_bs[p, a, (t-1)*perc_times:(t-1)*perc_times+perc_times], color=cmap(count_t),
+#             label='Trial '+str(t))
+#         ax.set_xlabel('Time (s)', fontsize=20)
+#         ax.set_ylabel(param_sym_label[p], fontsize=20)
+#         ax.set_title('Change over trial - ' + animal_list_plot[a])
+#         ax.legend(frameon=False)
+#         plt.xticks(fontsize=20)
+#         plt.yticks(fontsize=20)
+#         ax.spines['right'].set_visible(False)
+#         ax.spines['top'].set_visible(False)
+#         plt.savefig(os.path.join(path_save, 'ind_animals_symmetry_' + param_sym_name[p] + '_' + animal_list_plot[a] + '_perc_trial_quantification.png'), dpi=128)
+#         plt.savefig(os.path.join(path_save, 'ind_animals_symmetry_' + param_sym_name[p] + '_' + animal_list_plot[a] + '_perc_trial_quantification.svg'), dpi=128)
+#     plt.close('all')
