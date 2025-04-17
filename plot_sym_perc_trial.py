@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 #path inputs
-path_loco = 'C:\\Users\\Ana\\Desktop\\Opto JAWS RT\\tied swing stim\\'
+path_loco = 'C:\\Users\\Ana\\Desktop\\Opto JAWS RT\\tied stance stim\\'
 perc_division = 10 #percentage of the trial to plot in each bin
 paws = ['FR', 'HR', 'FL', 'HL']
 paw_colors = ['#e52c27', '#ad4397', '#3854a4', '#6fccdf']
@@ -14,7 +14,7 @@ animals = ['MC16848', 'MC16851', 'MC17319', 'MC17665', 'MC17666', 'MC17669', 'MC
 tied_session_short = ['MC16846', 'MC16848', 'MC16850', 'MC16851', 'MC17319', 'MC17665', 'MC17666', 'MC17668', 'MC17669', 'MC17670']
 stim_trials = np.arange(9, 18)
 Ntrials = 28
-color_cond = 'green'
+color_cond = 'orange'
 
 #import classes
 os.chdir('C:\\Users\\Ana\\Documents\\PhD\\Dev\\optogenetic-analysis\\')
@@ -61,18 +61,22 @@ for count_animal, animal in enumerate(animal_list_plot):
         param_sym_session = []
         for count_trial, f in enumerate(filelist):
             [final_tracks, tracks_tail, joints_wrist, joints_elbow, ear, bodycenter] = loco.read_h5(f, 0.9, 0)
+            # function to separate the final_tracks into bins
             [final_tracks_perctrial, bodycenter_perctrial] = loco.final_tracks_perctrial(final_tracks, bodycenter, perc_division)
             param_sym_single_trial = []
             for i in range(len(final_tracks_perctrial)):
+                #can happen that there are no tracks if bins is too small
                 if not final_tracks_perctrial[1].size > 0:
                     #empty final tracks
                     param_sym_single_trial.append(np.nan)
                 else:
+                    #normal gait param computation on final tracks perc trial
                     [st_strides_mat, sw_pts_mat] = loco.get_sw_st_matrices(final_tracks_perctrial[i], 1)
                     paws_rel = loco.get_paws_rel(final_tracks_perctrial[i], 'X')
                     param_mat = loco.compute_gait_param(bodycenter_perctrial[i], final_tracks_perctrial[i], paws_rel, st_strides_mat, sw_pts_mat, param)
                     param_sym_single_trial.append(np.nanmean(param_mat[0])-np.nanmean(param_mat[2]))
             param_sym_session.extend(param_sym_single_trial)
+        #matching number of trials in final array of gait params
         if len(param_sym_session) < np.shape(param_sym)[2]:
             param_sym[count_p, count_animal, bin_range_trials_in_ses] = param_sym_session
         elif len(param_sym_session) == np.shape(param_sym)[2]:
@@ -81,7 +85,7 @@ for count_animal, animal in enumerate(animal_list_plot):
             print('NUMBER OF TRIALS IS HIGHER THAN THE DEFINED NTRIALS')
 
 #Plot
-#baseline subtracion of parameters
+#baseline subtraction of parameters
 param_sym_bs = np.zeros(np.shape(param_sym))
 param_sym_bs[:] = np.nan
 for p in range(np.shape(param_sym)[0]):
