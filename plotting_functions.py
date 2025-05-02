@@ -16,9 +16,9 @@ def plot_stance_speed(data, animal, paw_colors, intervals=None):
     # Add split and stimulation intervals
     if intervals:
         if 'split' in intervals:
-            add_patch_interval(ax, intervals['split'])
+            add_patch_interval(ax, intervals['split'], set_fc='lightgray')
         if 'stim' in intervals:
-            add_start_end_interval(ax, intervals['stim'])
+            add_start_end_interval(ax, intervals['stim'], set_fc='lightblue')
 
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
@@ -50,18 +50,20 @@ def plot_learning_curve_ind_animals(param_sym, current_param, labels_dic, animal
     """
     fig, ax = plt.subplots(figsize=(7, 10), tight_layout=True)
 
-    # Plot learning curves for each animal
-    for a in range(np.shape(param_sym)[1]):  # Loop on all animals
-        plt.plot(np.linspace(1, len(param_sym[current_param, a, :]), len(param_sym[current_param, a, :])), param_sym[current_param, a, :], color=colors[animal_list[a]],
-                 label=animal_list[a], linewidth=2)
+
          
     # Add split and stimulation intervals
     if intervals:
         if 'split' in intervals:
-            add_patch_interval(ax, intervals['split'])
+            add_patch_interval(ax, intervals['split'], set_fc='lightgray')
         if 'stim' in intervals:
-            add_start_end_interval(ax, intervals['stim'])
+            add_start_end_interval(ax, intervals['stim'], set_fc='lightblue')
 
+    # Plot learning curves for each animal
+    for a in range(np.shape(param_sym)[1]):  # Loop on all animals
+        plt.plot(np.linspace(1, len(param_sym[current_param, a, :]), len(param_sym[current_param, a, :])), param_sym[current_param, a, :], color=colors[animal_list[a]],
+                 label=animal_list[a], linewidth=2)
+        
     set_symmetry_plot(ax, list(labels_dic.values())[current_param])
 
     return fig 
@@ -89,6 +91,14 @@ def plot_learning_curve_ind_animals_avg(param_sym_avg, current_param, labels_dic
 
     fig, ax = plt.subplots(figsize=(7, 10), tight_layout=True)
 
+    # Add split and stimulation intervals
+    if intervals:
+        if 'split' in intervals:
+            add_patch_interval(ax, intervals['split'], set_fc='lightgray')
+        if 'stim' in intervals:
+            add_start_end_interval(ax, intervals['stim'], set_fc='lightblue')
+
+
     # Plot learning curves for each animal
     for a in range(np.shape(param_sym_avg)[0]):
         plt.plot(np.linspace(1, len(param_sym_avg[a, :]), len(param_sym_avg[a, :])), param_sym_avg[a, :], linewidth=1, color=colors[0][included_animals[0][a]], label=animal_list[included_animals[1][a]])
@@ -106,12 +116,6 @@ def plot_learning_curve_ind_animals_avg(param_sym_avg, current_param, labels_dic
     else:
         ax.set(ylim=[np.nanmin(param_sym_avg[:, :].flatten()), np.nanmax(param_sym_avg[:, :].flatten())])
 
-    # Add split and stimulation intervals
-    if intervals:
-        if 'split' in intervals:
-            add_patch_interval(ax, intervals['split'])
-        if 'stim' in intervals:
-            add_start_end_interval(ax, intervals['stim'])
 
     set_symmetry_plot(ax, param_sym_labels[current_param])
    
@@ -155,6 +159,20 @@ def plot_learning_curve_avg_compared(param_sym_multi, current_param, labels_dic,
     path_index = 0
 
     paths = list(param_sym_multi.keys())
+    param_sym_names = list(labels_dic.keys())
+    param_sym_labels = list(labels_dic.values())
+    # Define y-axis limits
+    if ranges[0] and (ranges[1] is not None):
+        ax_multi.set(ylim=ranges[1][param_sym_names[current_param]])
+    else:
+        ax_multi.set(ylim=[min_rect, max_rect])
+
+    # Add split and stimulation intervals
+    if intervals:
+        if 'split' in intervals:
+            add_patch_interval(ax_multi, intervals['split'], set_fc='lightgray')
+        if 'stim' in intervals:
+            add_start_end_interval(ax_multi, intervals['stim'], set_fc='lightblue')
     
     for path in paths:
         ntrial = len(param_sym_multi[path][current_param][0,:])
@@ -169,21 +187,11 @@ def plot_learning_curve_avg_compared(param_sym_multi, current_param, labels_dic,
         max_rect = max(max_rect,np.nanmax(np.nanmean(param_sym_multi[path][current_param], axis=0)+np.nanstd(param_sym_multi[path][current_param], axis = 0)))
         path_index += 1
 
-    param_sym_names = list(labels_dic.keys())
-    param_sym_labels = list(labels_dic.values())
 
-    # Define y-axis limits
-    if ranges[0] and (ranges[1] is not None):
-        ax_multi.set(ylim=ranges[1][param_sym_names[current_param]])
-    else:
-        ax_multi.set(ylim=[min_rect, max_rect])
 
-    # Add split and stimulation intervals
-    if intervals:
-        if 'split' in intervals:
-            add_patch_interval(ax_multi, intervals['split'])
-        if 'stim' in intervals:
-            add_start_end_interval(ax_multi, intervals['stim'])
+
+
+
 
     set_symmetry_plot(ax_multi, param_sym_labels[current_param])
 
@@ -401,18 +409,20 @@ def plot_learning_param_scatter(learning_param, current_param_sym, lp_name, incl
 
 
 # UTILS plotting functions
-def add_patch_interval(ax, intervals):
+def add_patch_interval(ax, intervals, set_fc='lightgray'):
     """
     Adds split or stimulation intervals to a plot, as a patch light blue rectangle.
     
     Parameters:
     ax (matplotlib.axes.Axes): The axes object to add the intervals to.
     intervals (list): A list containing the start and duration (in trials) of the interval to plot as a patch.
+    set_fc (str, optional): The color of the patch. Defaults to 'lightgray'.   
     """
+
     start, duration = intervals
     rectangle = plt.Rectangle((start - 0.5, ax.get_ylim()[0]), duration,
                                     ax.get_ylim()[1] - ax.get_ylim()[0],
-                                    fc='lightblue', alpha=0.3)
+                                    fc=set_fc, alpha=0.3)
     ax.add_patch(rectangle)
     
  
